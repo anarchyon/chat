@@ -1,0 +1,11 @@
+org/example/LoginPassDocumentFilter.java
+ org.example.LoginPassDocumentFilter
+org/example/Callback.java
+ org.example.Callback
+org/example/ChatWindow.java
+ org.example.ChatWindow
+ org.example.ChatWindow$1
+org/example/Client.java
+ org.example.Client
+org/example/ClientApp.java
+ org.example.ClientApp

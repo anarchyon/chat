@@ -1,0 +1,4 @@
+rootProject.name = 'ChatFinal'
+include 'server'
+include 'client'
+
