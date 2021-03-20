@@ -5,20 +5,23 @@ import java.sql.*;
 public class DBAuthService implements AuthService {
     private static volatile DBAuthService instance;
 
-    public static final String DB_CONNECTION = "jdbc:postgresql://localhost:5432/dbchat";
-    public static final String DB_USER = "postgres";
-    public static final String DB_PASSWORD = "s32a7Sdqg";
+    //public static final String DB_CONNECTION = "jdbc:postgresql://localhost:5432/dbchat";
+    //public static final String DB_USER = "postgres";
+    //public static final String DB_PASSWORD = "s32a7Sdqg";
+    public static final String SQLite_CONNECTION = "jdbc:sqlite:ChatDB.db";
     public static Connection connection;
     private static boolean isConnected;
 
-    public static final String QUERY_LOGIN = "SELECT * FROM chat_clients WHERE login='%s' AND pass='%s'";
+    public static final String QUERY_LOGIN = "SELECT * FROM chat_clients WHERE login='%s' AND password='%s'";
     public static final String QUERY_NICK_CHECK = "SELECT * FROM chat_clients WHERE nick='%s'";
     public static final String QUERY_NICK_CHANGE = "UPDATE chat_clients SET nick='%s' WHERE login='%s'";
 
     private DBAuthService() {
         try {
-            Class.forName("org.postgresql.Driver");
-            connection = DriverManager.getConnection(DB_CONNECTION, DB_USER, DB_PASSWORD);
+            //Class.forName("org.postgresql.Driver");
+            Class.forName("org.sqlite.JDBC");
+            //connection = DriverManager.getConnection(DB_CONNECTION, DB_USER, DB_PASSWORD);
+            connection = DriverManager.getConnection(SQLite_CONNECTION);
             isConnected = true;
         } catch (SQLException | ClassNotFoundException throwable) {
             isConnected = false;
@@ -69,5 +72,14 @@ public class DBAuthService implements AuthService {
             throwables.printStackTrace();
         }
         return false;
+    }
+
+    @Override
+    public void close() {
+        try {
+            connection.close();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
     }
 }

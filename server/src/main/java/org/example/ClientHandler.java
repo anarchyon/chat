@@ -64,7 +64,7 @@ public class ClientHandler {
                         } else {
                             login = tokens[1];
                             System.out.println("Client logged in as " + nick);
-                            out.writeUTF("/authok" + nick);
+                            out.writeUTF("/authok " + login + " " + nick);
                             server.broadcastMessage(null, nick + " присоединился к чату");
                             server.subscribe(this);
                             isSubscribed = true;
@@ -90,13 +90,8 @@ public class ClientHandler {
                 if (incomingMessage.equalsIgnoreCase(DISCONNECT_SEQUENCE)) {
                     return;
                 } else if (incomingMessage.startsWith("/w")) {
-                    String[] parts = incomingMessage.split("\\s");
-                    StringBuilder message = new StringBuilder();
-                    for (int i = 2; i < parts.length; i++) {
-                        message.append(parts[i]);
-                        message.append(" ");
-                    }
-                    server.privateMessage(this, parts[1], buildString(message.toString().trim()));
+                    String[] parts = incomingMessage.split("\\s", 3);
+                    server.privateMessage(this, parts[1], buildString(parts[2].trim()));
                 } else if (incomingMessage.startsWith("/change")) {
                     String[] parts = incomingMessage.split("\\s");
                     if (server.getAuthService().changeNick(login, parts[1])) {

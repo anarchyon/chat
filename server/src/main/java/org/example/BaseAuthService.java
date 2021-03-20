@@ -28,6 +28,11 @@ public class BaseAuthService implements AuthService {
         return false;
     }
 
+    @Override
+    public void close() {
+
+    }
+
     private final class Entry {
         private String login;
         private String password;

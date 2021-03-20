@@ -63,7 +63,7 @@ public class ChatWindow extends JFrame {
         switch (authStatus) {
             case Client.AUTHORIZATION_OK:
                 registerLogon.setVisible(false);
-                this.setTitle(client.getNick());
+                this.setTitle(client.getLogin());
                 this.setVisible(true);
                 yourMessage.grabFocus();
                 break;
@@ -110,6 +110,7 @@ public class ChatWindow extends JFrame {
         chatArea.setEditable(false);
         chatArea.setLineWrap(true);
         chatArea.setWrapStyleWord(true);
+        chatArea.setAutoscrolls(true);
 
         chatPanel.add(new JScrollPane(chatArea));
 

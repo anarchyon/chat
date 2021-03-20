@@ -1,9 +1,13 @@
 package org.example;
 
+import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.util.List;
 
 public class Client {
     private final int PORT = 8189;
@@ -20,7 +24,9 @@ public class Client {
     private Socket socket;
     private DataInputStream in;
     private DataOutputStream out;
+    private String login;
     private String nick;
+    Path historyFilePath;
 
     private boolean isConnectionOk;
     private Callback<Integer> getAuthStatus;
@@ -37,6 +43,7 @@ public class Client {
             Thread authAndReading = new Thread(() -> {
                 try {
                     authentication();
+                    setHistory();
                     readMessages();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -53,7 +60,9 @@ public class Client {
         while (true) {
             String answer = in.readUTF();
             if (answer.startsWith("/authok")) {
-                nick = answer.replaceFirst("/authok", "");
+                String[] tokens = answer.split("\\s");
+                login = tokens[1];
+                nick = tokens[2];
                 getAuthStatus.callback(AUTHORIZATION_OK);
                 break;
             } else if (answer.equals("/authbad")) {
@@ -70,6 +79,24 @@ public class Client {
         }
     }
 
+    private void setHistory() throws IOException {
+        historyFilePath = Paths.get(String.format("client\\history\\history_%s.txt", login));
+        Files.createDirectories(historyFilePath.getParent());
+        if (Files.exists(historyFilePath)) {
+            List<String> messages = Files.readAllLines(historyFilePath, StandardCharsets.UTF_8);
+            int messageToRestore = 100;
+            int messageAll = messages.size();
+            if (messageAll > 0) {
+                if (messageAll > messageToRestore) {
+                    messages = messages.subList(messageAll - messageToRestore, messageAll);
+                }
+                messages.forEach(msg -> callOnMsgReceived.callback(msg + "\n"));
+            }
+        } else {
+            Files.createFile(historyFilePath);
+        }
+    }
+
     private void readMessages() {
         try {
             while (true) {
@@ -81,16 +108,11 @@ public class Client {
                     nick = tokens[1];
                     callChangeNick.callback(nick);
                 } else{
-                    String[] tokens = incomingMessage.split("\\s");
-                    if (tokens[0].equals(nick)) {
-                        tokens[0] = "Я";
-                        StringBuilder text = new StringBuilder();
-                        for (String s : tokens) {
-                            text.append(s).append(" ");
-                        }
-                        incomingMessage = text.toString().trim();
-                    }
-                    callOnMsgReceived.callback("\n\n" + incomingMessage);
+                    callOnMsgReceived.callback(incomingMessage + "\n");
+                    BufferedWriter writer = Files.newBufferedWriter(
+                            historyFilePath, StandardCharsets.UTF_8, StandardOpenOption.APPEND);
+                    writer.write(incomingMessage + "\n");
+                    writer.close();
                 }
             }
         } catch (IOException e) {
@@ -114,6 +136,10 @@ public class Client {
 
     public String getNick() {
         return nick;
+    }
+
+    public String getLogin() {
+        return login;
     }
 
     public void closeConnection() {
