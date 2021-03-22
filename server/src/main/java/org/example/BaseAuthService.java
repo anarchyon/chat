@@ -24,8 +24,8 @@ public class BaseAuthService implements AuthService {
     }
 
     @Override
-    public boolean changeNick(String login, String nick) {
-        return false;
+    public int changeNick(String login, String nick) {
+        return AuthService.ANSWER_CHANGE_NICK_OTHER_FAIL;
     }
 
     @Override

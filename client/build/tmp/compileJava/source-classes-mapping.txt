@@ -2,6 +2,8 @@ org/example/LoginPassDocumentFilter.java
  org.example.LoginPassDocumentFilter
 org/example/Callback.java
  org.example.Callback
+org/example/HistoryWriter.java
+ org.example.HistoryWriter
 org/example/ChatWindow.java
  org.example.ChatWindow
  org.example.ChatWindow$1

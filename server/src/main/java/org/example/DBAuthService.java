@@ -9,12 +9,11 @@ public class DBAuthService implements AuthService {
     //public static final String DB_USER = "postgres";
     //public static final String DB_PASSWORD = "s32a7Sdqg";
     public static final String SQLite_CONNECTION = "jdbc:sqlite:ChatDB.db";
-    public static Connection connection;
-    private static boolean isConnected;
+    public Connection connection;
 
-    public static final String QUERY_LOGIN = "SELECT * FROM chat_clients WHERE login='%s' AND password='%s'";
-    public static final String QUERY_NICK_CHECK = "SELECT * FROM chat_clients WHERE nick='%s'";
-    public static final String QUERY_NICK_CHANGE = "UPDATE chat_clients SET nick='%s' WHERE login='%s'";
+    private PreparedStatement findByLoginAndPassword;
+    private PreparedStatement nickCheck;
+    private PreparedStatement nickUpdate;
 
     private DBAuthService() {
         try {
@@ -22,11 +21,10 @@ public class DBAuthService implements AuthService {
             Class.forName("org.sqlite.JDBC");
             //connection = DriverManager.getConnection(DB_CONNECTION, DB_USER, DB_PASSWORD);
             connection = DriverManager.getConnection(SQLite_CONNECTION);
-            isConnected = true;
         } catch (SQLException | ClassNotFoundException throwable) {
-            isConnected = false;
+            System.out.println("Ошибка подключения к БД");;
         }
-
+        createPreparedStatement();
     }
 
     public static DBAuthService getDBAuthService() {
@@ -42,41 +40,74 @@ public class DBAuthService implements AuthService {
         }
     }
 
-    public static boolean isConnected() {
-        return isConnected;
+    private void createPreparedStatement() {
+        try {
+            findByLoginAndPassword = connection.prepareStatement(
+                    "SELECT * FROM chat_clients WHERE LOWER(login)=LOWER(?) AND password=?");
+            nickCheck = connection.prepareStatement("SELECT * FROM chat_clients WHERE nick=?");
+            nickUpdate = connection.prepareStatement(
+                    "UPDATE chat_clients SET nick=? WHERE login=?");
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
     }
 
     @Override
     public String getNicknameByLoginAndPassword(String login, String password) {
-        try (PreparedStatement statement = connection.prepareStatement(String.format(QUERY_LOGIN, login, password));
-             ResultSet result = statement.executeQuery()) {
-            if (result.next()) {
-                return result.getString("nick").trim();
+        ResultSet resultSet = null;
+        try {
+            findByLoginAndPassword.setString(1, login);
+            findByLoginAndPassword.setString(2, password);
+            resultSet = findByLoginAndPassword.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getString("nick").trim();
             }
         } catch (SQLException throwables) {
             throwables.printStackTrace();
+        } finally {
+            closeResultSet(resultSet);
         }
         return null;
     }
 
     @Override
-    public boolean changeNick(String login, String nick) {
-        try (PreparedStatement nickCheck = connection.prepareStatement(String.format(QUERY_NICK_CHECK, nick));
-        PreparedStatement nickUpdate = connection.prepareStatement(String.format(QUERY_NICK_CHANGE, nick, login));
-        ResultSet result = nickCheck.executeQuery()) {
-            if (!result.next()) {
+    public int changeNick(String login, String nick) {
+        ResultSet resultSet = null;
+        try {
+            nickCheck.setString(1, nick);
+            nickUpdate.setString(1, nick);
+            nickUpdate.setString(2, login);
+            resultSet = nickCheck.executeQuery();
+            if (!resultSet.next()) {
                 nickUpdate.executeUpdate();
-                return true;
+                return AuthService.ANSWER_CHANGE_NICK_OK;
+            } else {
+                return AuthService.ANSWER_CHANGE_NICK_BUSY;
             }
         } catch (SQLException throwables) {
-            throwables.printStackTrace();
+            System.err.println(throwables.getMessage());
+        } finally {
+            closeResultSet(resultSet);
         }
-        return false;
+        return AuthService.ANSWER_CHANGE_NICK_OTHER_FAIL;
+    }
+
+    private void closeResultSet(ResultSet resultSet) {
+        if (resultSet != null) {
+            try {
+                resultSet.close();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }
     }
 
     @Override
     public void close() {
         try {
+            findByLoginAndPassword.close();
+            nickUpdate.close();
+            nickCheck.close();
             connection.close();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
