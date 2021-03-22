@@ -57,6 +57,11 @@ public class ChatWindow extends JFrame {
         client.setCallOnMsgReceived(this::appendText);
         client.setGetAuthStatus(this::showMainWindow);
         client.setCallChangeNick(this::setTitle);
+        client.setCallErrors(this::showError);
+    }
+
+    private void showError(String message) {
+        JOptionPane.showMessageDialog(this, message);
     }
 
     private void showMainWindow(int authStatus) {

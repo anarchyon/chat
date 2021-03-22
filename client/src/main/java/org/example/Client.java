@@ -26,13 +26,15 @@ public class Client {
     private DataOutputStream out;
     private String login;
     private String nick;
-    Path historyFilePath;
 
     private boolean isConnectionOk;
     private Callback<Integer> getAuthStatus;
     private Callback<String> callOnMsgReceived;
     private Callback<String> callOnChangeClientList;
     private Callback<String> callChangeNick;
+    private Callback<String> callErrors;
+
+    private HistoryWriter historyWriter;
 
     public void connect() {
         try {
@@ -80,21 +82,9 @@ public class Client {
     }
 
     private void setHistory() throws IOException {
-        historyFilePath = Paths.get(String.format("client\\history\\history_%s.txt", login));
-        Files.createDirectories(historyFilePath.getParent());
-        if (Files.exists(historyFilePath)) {
-            List<String> messages = Files.readAllLines(historyFilePath, StandardCharsets.UTF_8);
-            int messageToRestore = 100;
-            int messageAll = messages.size();
-            if (messageAll > 0) {
-                if (messageAll > messageToRestore) {
-                    messages = messages.subList(messageAll - messageToRestore, messageAll);
-                }
-                messages.forEach(msg -> callOnMsgReceived.callback(msg + "\n"));
-            }
-        } else {
-            Files.createFile(historyFilePath);
-        }
+        historyWriter = new HistoryWriter(login);
+        List<String> messages = historyWriter.readHistory();
+        messages.forEach(msg -> callOnMsgReceived.callback(msg + "\n"));
     }
 
     private void readMessages() {
@@ -103,16 +93,17 @@ public class Client {
                 String incomingMessage = in.readUTF();
                 if (incomingMessage.startsWith("/list")) {
                     callOnChangeClientList.callback(incomingMessage.replaceFirst("/list", ""));
-                } else if (incomingMessage.startsWith("/change")) {
+                } else if (incomingMessage.startsWith("/changeok")) {
                     String[] tokens = incomingMessage.split("\\s");
                     nick = tokens[1];
                     callChangeNick.callback(nick);
-                } else{
+                } else if (incomingMessage.equals("/nickbusy")) {
+                    callErrors.callback("Ник занят");
+                } else if(incomingMessage.equals("/nickerror")) {
+                    callErrors.callback("Ошибка при смене ника");
+                } else {
                     callOnMsgReceived.callback(incomingMessage + "\n");
-                    BufferedWriter writer = Files.newBufferedWriter(
-                            historyFilePath, StandardCharsets.UTF_8, StandardOpenOption.APPEND);
-                    writer.write(incomingMessage + "\n");
-                    writer.close();
+                    historyWriter.writeHistory(incomingMessage);
                 }
             }
         } catch (IOException e) {
@@ -179,5 +170,9 @@ public class Client {
 
     public void setCallChangeNick(Callback<String> callChangeNick) {
         this.callChangeNick = callChangeNick;
+    }
+
+    public void setCallErrors(Callback<String> callErrors) {
+        this.callErrors = callErrors;
     }
 }

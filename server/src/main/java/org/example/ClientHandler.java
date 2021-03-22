@@ -94,12 +94,17 @@ public class ClientHandler {
                     server.privateMessage(this, parts[1], buildString(parts[2].trim()));
                 } else if (incomingMessage.startsWith("/change")) {
                     String[] parts = incomingMessage.split("\\s");
-                    if (server.getAuthService().changeNick(login, parts[1])) {
+                    int dbAnswer = server.getAuthService().changeNick(login, parts[1]);
+                    if (dbAnswer == AuthService.ANSWER_CHANGE_NICK_OK) {
                         String oldNick = nick;
                         nick = parts[1];
-                        sendMessage("/change " + nick);
+                        sendMessage("/changeok " + nick);
                         server.broadcastMessage(null, oldNick + " сменил ник на " + nick);
                         server.broadcastClientsList();
+                    } else if (dbAnswer == AuthService.ANSWER_CHANGE_NICK_BUSY) {
+                        out.writeUTF("/nickbusy");
+                    } else if (dbAnswer == AuthService.ANSWER_CHANGE_NICK_OTHER_FAIL){
+                        out.writeUTF("/nickerror");
                     }
                 }
             } else {
