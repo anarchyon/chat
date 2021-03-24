@@ -9,7 +9,7 @@ public class LetterPrinter {
     private final Object monitor = new Object();
     private final int count;
     private final ArrayList<Character> args;
-    private Character currentLetter;
+    private volatile Character currentLetter;
 
     public LetterPrinter(int count, Character... characters) {
         this.count = count;
