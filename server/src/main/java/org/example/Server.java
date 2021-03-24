@@ -5,6 +5,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Server {
     private final int PORT = 8189;
@@ -14,17 +16,19 @@ public class Server {
     public Server () {
         clients = new ArrayList<>();
         authService = DBAuthService.getDBAuthService();
+        ExecutorService executorService = Executors.newCachedThreadPool();
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Server is listening");
             while (true) {
                 Socket socket = serverSocket.accept();
                 System.out.println("Client connected");
-                new ClientHandler(this, socket);
+                new ClientHandler(this, socket, executorService);
             }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             authService.close();
+            executorService.shutdown();
         }
     }
 

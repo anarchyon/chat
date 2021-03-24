@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.ExecutorService;
 
 public class ClientHandler {
     private Server server;
@@ -20,13 +21,13 @@ public class ClientHandler {
 
     public static final String DISCONNECT_SEQUENCE = "/end";
 
-    public ClientHandler(Server server, Socket socket) {
+    public ClientHandler(Server server, Socket socket, ExecutorService executorService) {
         try {
             this.server = server;
             this.socket = socket;
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
-            new Thread(() -> {
+            executorService.execute(() -> {
                 try {
                     authentication();
                     readMessages();
@@ -40,7 +41,7 @@ public class ClientHandler {
                         closeConnection();
                     }
                 }
-            }).start();
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -103,7 +104,7 @@ public class ClientHandler {
                         server.broadcastClientsList();
                     } else if (dbAnswer == AuthService.ANSWER_CHANGE_NICK_BUSY) {
                         out.writeUTF("/nickbusy");
-                    } else if (dbAnswer == AuthService.ANSWER_CHANGE_NICK_OTHER_FAIL){
+                    } else if (dbAnswer == AuthService.ANSWER_CHANGE_NICK_OTHER_FAIL) {
                         out.writeUTF("/nickerror");
                     }
                 }
