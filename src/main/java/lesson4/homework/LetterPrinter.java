@@ -2,13 +2,14 @@ package lesson4.homework;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 //1. Создать три потока, каждый из которых выводит определенную
 // букву (A, B и C) 5 раз (порядок – ABСABСABС). Используйте wait/notify/notifyAll.
 public class LetterPrinter {
     private final Object monitor = new Object();
     private final int count;
-    private final ArrayList<Character> args;
+    private final List<Character> args;
     private volatile Character currentLetter;
 
     public LetterPrinter(int count, Character... characters) {
@@ -18,7 +19,7 @@ public class LetterPrinter {
         currentLetter = args.get(0);
     }
 
-    public ArrayList<Character> getArgs() {
+    public List<Character> getArgs() {
         return args;
     }
 
