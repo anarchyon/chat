@@ -1,5 +1,8 @@
 package org.example;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -12,20 +15,22 @@ public class Server {
     private final int PORT = 8189;
     private List<ClientHandler> clients;
     private AuthService authService;
+    private static final Logger LOGGER = LogManager.getLogger(Server.class);
 
     public Server () {
         clients = new ArrayList<>();
         authService = DBAuthService.getDBAuthService();
         ExecutorService executorService = Executors.newCachedThreadPool();
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-            System.out.println("Server is listening");
+            LOGGER.info("Server is Listening");
             while (true) {
                 Socket socket = serverSocket.accept();
-                System.out.println("Client connected");
+                LOGGER.info("Client connected");
                 new ClientHandler(this, socket, executorService);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error(e);
+//            e.printStackTrace();
         } finally {
             authService.close();
             executorService.shutdown();
@@ -80,13 +85,13 @@ public class Server {
 
     public synchronized void subscribe (ClientHandler client) {
         clients.add(client);
-        System.out.println(client.getNick() + " subscribed");
+        LOGGER.info(client.getNick() + " subscribed");
         broadcastClientsList();
     }
 
     public synchronized void unsubscribe(ClientHandler client) {
         clients.remove(client);
-        System.out.println(client.getNick() + " unsubscribed");
+        LOGGER.info(client.getNick() + " unsubscribed");
         broadcastClientsList();
     }
 }
