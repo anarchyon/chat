@@ -2,6 +2,7 @@ package org.example;
 
 import javax.swing.*;
 import javax.swing.text.AbstractDocument;
+import javax.swing.text.DefaultCaret;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -116,6 +117,8 @@ public class ChatWindow extends JFrame {
         chatArea.setLineWrap(true);
         chatArea.setWrapStyleWord(true);
         chatArea.setAutoscrolls(true);
+        DefaultCaret caret = (DefaultCaret) chatArea.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
         chatPanel.add(new JScrollPane(chatArea));
 
