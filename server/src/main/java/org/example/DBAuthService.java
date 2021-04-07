@@ -1,9 +1,13 @@
 package org.example;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.sql.*;
 
 public class DBAuthService implements AuthService {
     private static volatile DBAuthService instance;
+    private static final Logger LOGGER = LogManager.getLogger(DBAuthService.class);
 
     //public static final String DB_CONNECTION = "jdbc:postgresql://localhost:5432/dbchat";
     //public static final String DB_USER = "postgres";
@@ -22,7 +26,7 @@ public class DBAuthService implements AuthService {
             //connection = DriverManager.getConnection(DB_CONNECTION, DB_USER, DB_PASSWORD);
             connection = DriverManager.getConnection(SQLite_CONNECTION);
         } catch (SQLException | ClassNotFoundException throwable) {
-            System.out.println("Ошибка подключения к БД");;
+            LOGGER.error("Ошибка подключения к БД");
         }
         createPreparedStatement();
     }
@@ -48,7 +52,7 @@ public class DBAuthService implements AuthService {
             nickUpdate = connection.prepareStatement(
                     "UPDATE chat_clients SET nick=? WHERE login=?");
         } catch (SQLException throwables) {
-            throwables.printStackTrace();
+            LOGGER.error(throwables.getMessage());
         }
     }
 
@@ -63,7 +67,7 @@ public class DBAuthService implements AuthService {
                 return resultSet.getString("nick").trim();
             }
         } catch (SQLException throwables) {
-            throwables.printStackTrace();
+            LOGGER.error(throwables.getMessage());
         } finally {
             closeResultSet(resultSet);
         }
@@ -85,7 +89,7 @@ public class DBAuthService implements AuthService {
                 return AuthService.ANSWER_CHANGE_NICK_BUSY;
             }
         } catch (SQLException throwables) {
-            System.err.println(throwables.getMessage());
+            LOGGER.error(throwables.getMessage());
         } finally {
             closeResultSet(resultSet);
         }
@@ -97,7 +101,7 @@ public class DBAuthService implements AuthService {
             try {
                 resultSet.close();
             } catch (SQLException throwables) {
-                throwables.printStackTrace();
+                LOGGER.error(throwables.getMessage());
             }
         }
     }
@@ -110,7 +114,7 @@ public class DBAuthService implements AuthService {
             nickCheck.close();
             connection.close();
         } catch (SQLException throwables) {
-            throwables.printStackTrace();
+            LOGGER.error(throwables.getMessage());
         }
     }
 }

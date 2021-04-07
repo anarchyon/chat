@@ -1,0 +1,43 @@
+INFO  2021-04-02 00:33:41 [main] org.example.Server (Server.java:25) - Server is Listening
+ERROR 2021-04-02 13:31:26 [main] org.example.Server - java.io.IOException
+INFO  2021-04-02 13:31:26 [main] org.example.Server - Server is Listening
+ERROR 2021-04-02 13:33:21 [main] org.example.Server - null
+INFO  2021-04-02 13:33:21 [main] org.example.Server - Server is Listening
+INFO  2021-04-02 16:19:40 [main] org.example.Server - Server is Listening
+INFO  2021-04-02 16:20:14 [main] org.example.Server - Client connected
+INFO  2021-04-02 16:20:18 [main] org.example.Server - Client connected
+INFO  2021-04-02 16:20:58 [pool-2-thread-2] org.example.ClientHandler - Client logged in as nick
+INFO  2021-04-02 16:20:58 [pool-2-thread-2] org.example.Server - nick subscribed
+WARN  2021-04-02 16:22:14 [pool-2-thread-1] org.example.ClientHandler - Authorization timeout
+WARN  2021-04-02 16:22:14 [pool-2-thread-1] org.example.ClientHandler - Connection with client broken
+INFO  2021-04-02 16:24:01 [pool-2-thread-2] org.example.ClientHandler -  (02 апр 2021 16:24:01): /end
+INFO  2021-04-02 16:24:01 [pool-2-thread-2] org.example.Server - nick unsubscribed
+INFO  2021-04-02 16:34:22 [main] org.example.Server - Server is Listening
+INFO  2021-04-02 16:34:45 [main] org.example.Server - Client connected
+INFO  2021-04-02 16:34:52 [pool-2-thread-1] org.example.ClientHandler - Client logged in as Онегин
+INFO  2021-04-02 16:34:52 [pool-2-thread-1] org.example.Server - Онегин subscribed
+INFO  2021-04-02 16:35:39 [pool-2-thread-1] org.example.ClientHandler -  (02 апр 2021 16:35:39): проверка
+INFO  2021-04-02 16:37:11 [pool-2-thread-1] org.example.ClientHandler -  (02 апр 2021 16:37:11): раз
+INFO  2021-04-02 16:37:15 [pool-2-thread-1] org.example.ClientHandler -  (02 апр 2021 16:37:15): .утв
+INFO  2021-04-02 16:37:17 [pool-2-thread-1] org.example.ClientHandler -  (02 апр 2021 16:37:17): /end
+INFO  2021-04-02 16:37:17 [pool-2-thread-1] org.example.Server - Онегин unsubscribed
+INFO  2021-04-02 16:52:07 [main] org.example.Server - Server is Listening
+INFO  2021-04-02 16:52:27 [main] org.example.Server - Client connected
+INFO  2021-04-02 16:52:33 [pool-2-thread-1] org.example.ClientHandler - Client logged in as Онегин
+INFO  2021-04-02 16:52:33 [pool-2-thread-1] org.example.Server - Онегин subscribed
+INFO  2021-04-02 16:52:38 [pool-2-thread-1] org.example.ClientHandler -  (02 апр 2021 16:52:38): проверка
+INFO  2021-04-02 16:52:42 [pool-2-thread-1] org.example.ClientHandler -  (02 апр 2021 16:52:42): /end
+INFO  2021-04-02 16:52:42 [pool-2-thread-1] org.example.Server - Онегин unsubscribed
+INFO  2021-04-02 17:00:18 [main] org.example.Server - Server is Listening
+INFO  2021-04-02 17:00:28 [main] org.example.Server - Client connected
+INFO  2021-04-02 17:00:34 [pool-2-thread-1] org.example.ClientHandler - Client logged in as Онегин
+INFO  2021-04-02 17:00:34 [pool-2-thread-1] org.example.Server - Онегин subscribed
+INFO  2021-04-02 17:04:06 [main] org.example.Server - Server is Listening
+INFO  2021-04-02 17:04:30 [main] org.example.Server - Server is Listening
+INFO  2021-04-02 17:04:43 [main] org.example.Server - Client connected
+INFO  2021-04-02 17:04:49 [pool-2-thread-1] org.example.ClientHandler - Client logged in as Онегин
+INFO  2021-04-02 17:04:49 [pool-2-thread-1] org.example.Server - Онегин subscribed
+INFO  2021-04-02 17:04:53 [pool-2-thread-1] org.example.ClientHandler -  (02 апр 2021 17:04:53): ghjdthrf
+INFO  2021-04-02 17:04:57 [pool-2-thread-1] org.example.ClientHandler -  (02 апр 2021 17:04:57): проверка231
+INFO  2021-04-02 17:05:00 [pool-2-thread-1] org.example.ClientHandler -  (02 апр 2021 17:05:00): /end
+INFO  2021-04-02 17:05:00 [pool-2-thread-1] org.example.Server - Онегин unsubscribed

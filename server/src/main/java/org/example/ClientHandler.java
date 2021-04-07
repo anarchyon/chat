@@ -1,5 +1,8 @@
 package org.example;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -9,6 +12,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ExecutorService;
 
 public class ClientHandler {
+    private static final Logger LOGGER = LogManager.getLogger(ClientHandler.class);
+
     private Server server;
     private Socket socket;
     private DataInputStream in;
@@ -33,9 +38,9 @@ public class ClientHandler {
                     readMessages();
                 } catch (IOException e) {
                     if (isAuthTimeOut) {
-                        System.out.println("Authorization timeout");
+                        LOGGER.warn("Authorization timeout");
                     }
-                    System.out.println("Connection with client broken");
+                    LOGGER.warn("Connection with client broken");
                 } finally {
                     if (isSubscribed) {
                         closeConnection();
@@ -43,7 +48,7 @@ public class ClientHandler {
                 }
             });
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
     }
 
@@ -60,17 +65,18 @@ public class ClientHandler {
                     nick = server.getAuthService().getNicknameByLoginAndPassword(tokens[1], tokens[2]);
                     if (nick != null) {
                         if (server.isNickBusy(nick)) {
-                            System.out.println("Client is logged in already");
+                            LOGGER.warn("Client is logged in already");
                             out.writeUTF("/authbusy");
                         } else {
                             login = tokens[1];
-                            System.out.println("Client logged in as " + nick);
+                            LOGGER.info("Client logged in as " + nick);
                             out.writeUTF("/authok " + login + " " + nick);
                             server.broadcastMessage(null, nick + " присоединился к чату");
                             server.subscribe(this);
                             isSubscribed = true;
                         }
                     } else {
+                        LOGGER.warn("Invalid login data");
                         out.writeUTF("/authbad");
                     }
                 }
@@ -86,7 +92,7 @@ public class ClientHandler {
     public void readMessages() throws IOException {
         while (true) {
             String incomingMessage = in.readUTF();
-            System.out.println(buildString(incomingMessage));
+            LOGGER.info(buildString(incomingMessage));
             if (incomingMessage.startsWith("/")) {
                 if (incomingMessage.equalsIgnoreCase(DISCONNECT_SEQUENCE)) {
                     return;
@@ -118,7 +124,7 @@ public class ClientHandler {
         try {
             out.writeUTF(message);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
     }
 
@@ -136,17 +142,17 @@ public class ClientHandler {
         try {
             in.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
         try {
             out.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
         try {
             socket.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
     }
 
